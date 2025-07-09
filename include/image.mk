@@ -761,9 +761,12 @@ define Device/Build/image
   ifndef IB
     $$(ROOTFS/$(1)/$(3)): $(if $(TARGET_PER_DEVICE_ROOTFS),target-dir-$$(ROOTFS_ID/$(3)))
   endif
+
   $(KDIR)/tmp/$(call DEVICE_IMG_NAME,$(1),$(2)): $$(KDIR_KERNEL_IMAGE) $$(ROOTFS/$(1)/$(3)) $(if $(CONFIG_TARGET_ROOTFS_INITRAMFS),$(if $(IB),,$(3)-initramfs-images))
 	@rm -f $$@
+  ifneq ($$(TARGET_KERNEL_PREBUILT),1)
 	[ -f $$(word 1,$$^) -a -f $$(word 2,$$^) ]
+  endif
 	$$(call concat_cmd,$(if $(IMAGE/$(2)/$(1)),$(IMAGE/$(2)/$(1)),$(IMAGE/$(2))))
 
   .IGNORE: $(BIN_DIR)/$(call DEVICE_IMG_NAME,$(1),$(2))
