@@ -6,7 +6,6 @@ define Device/google_shiba
   $(call Device/tensor)
   DEVICE_MODEL := Pixel 8
   DEVICE_PACKAGES := tensor-kernel-prebuilt-shusky
-  TENSOR_CHECKOUT := ceafd141081c88e0e5f256b1661d74cb989da5ae
   TENSOR_PRODUCT := shusky
   TENSOR_CMDLINE := cmdline=fips140.load_sequential=1 exynos_mfc.load_sequential=1 exynos_drm.load_sequential=1 g2d.load_sequential=1 disable_dma32=on earlycon=exynos4210,0x10A00000 console=ttySAC0,115200 androidboot.console=ttySAC0 printk.devkmsg=on cma_sysfs.experimental=Y cgroup_disable=memory cgroup.memory=nokmem rcupdate.rcu_expedited=1 rcu_nocbs=all rcutree.enable_rcu_lazy swiotlb=noforce disable_dma32=on sysctl.kernel.sched_pelt_multiplier=4 at24.write_timeout=100 log_buf_len=1024K
   TENSOR_BASE := 0x80000000
@@ -22,7 +21,6 @@ define Device/google_husky
   $(call Device/tensor)
   DEVICE_MODEL := Pixel 8 Pro
   DEVICE_PACKAGES := tensor-kernel-prebuilt-shusky
-  TENSOR_CHECKOUT := ceafd141081c88e0e5f256b1661d74cb989da5ae
   TENSOR_PRODUCT := shusky
   TENSOR_CMDLINE := cmdline=fips140.load_sequential=1 exynos_mfc.load_sequential=1 exynos_drm.load_sequential=1 g2d.load_sequential=1 disable_dma32=on earlycon=exynos4210,0x10A00000 console=ttySAC0,115200 androidboot.console=ttySAC0 printk.devkmsg=on cma_sysfs.experimental=Y cgroup_disable=memory cgroup.memory=nokmem rcupdate.rcu_expedited=1 rcu_nocbs=all rcutree.enable_rcu_lazy swiotlb=noforce disable_dma32=on sysctl.kernel.sched_pelt_multiplier=4 at24.write_timeout=100 log_buf_len=1024K
   TENSOR_BASE := 0x80000000
