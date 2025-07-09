@@ -6,6 +6,10 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/image.mk
 
+# Utilities
+mkbootimg := $(STAGING_DIR_HOST)/bin/mkbootimg
+HOST_DEPENDS += mkbootimg
+
 # Devices
 define Device/Default
 	PROFILES = Default
@@ -25,7 +29,7 @@ define Build/fastboot
 	@echo "[fastboot] Built ramdisk: $(BIN_DIR)/$(IMG_ROOTFS).cpio.lz4"
 
 	@echo "[fastboot] Building image..."
-	mkbootimg \
+	$(mkbootimg) \
 		--kernel $(1) \
 		--ramdisk $(BIN_DIR)/$(IMG_ROOTFS).cpio.lz4 \
                 --dtb $(2) \
