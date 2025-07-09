@@ -387,10 +387,12 @@ define BuildTargets/DumpCurrent
 	$(if $(SUBTARGET),,@$(foreach SUBTARGET,$(SUBTARGETS),$(SUBMAKE) -s DUMP=1 SUBTARGET=$(SUBTARGET); ))
 endef
 
-include $(INCLUDE_DIR)/kernel.mk
-ifeq ($(TARGET_BUILD),1)
-  include $(INCLUDE_DIR)/kernel-build.mk
-  BuildTarget?=$(BuildKernel)
+ifneq ($(TARGET_KERNEL_PREBUILT),1)
+  include $(INCLUDE_DIR)/kernel.mk
+  ifeq ($(TARGET_BUILD),1)
+    include $(INCLUDE_DIR)/kernel-build.mk
+    BuildTarget?=$(BuildKernel)
+  endif
 endif
 
 endif #__target_inc
