@@ -6,77 +6,73 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/image.mk
 
-# Utilities
-mkbootimg := $(STAGING_DIR_HOST)/bin/mkbootimg
+# mkbootimg
 HOST_DEPENDS += mkbootimg
+mkbootimg := $(STAGING_DIR_HOST)/bin/mkbootimg
+unpackbootimg := $(STAGING_DIR_HOST)/bin/unpackbootimg
 
 # Devices
 define Device/Default
-	PROFILES = Default
+  PROFILES = Default
 endef
 define Device/tensor
-	DEVICE_VENDOR := Google
-	IMAGES := boot.img
-	IMAGE/boot.img := tensor
+  DEVICE_VENDOR := Google
+  DEVICE_MODEL := Unknown
+
+  TENSOR_PRODUCT := unknown
+  TENSOR_PAGESIZE := 4096
+  TENSOR_OS := 0.0.0
+  TENSOR_PATCH := 0-00
+
+  IMAGES := boot.img
+  IMAGE/boot.img := tensor/image/ramdisk | tensor/image/unpack | tensor/image/pack | pad-to 67108864
 endef
 include $(SUBTARGET).mk
 
 # fastboot
-define Build/fastboot
-	@echo "[fastboot] Building ramdisk..."
-	( cd $(TARGET_DIR); find . | $(STAGING_DIR_HOST)/bin/cpio -o -H newc -R 0:0 | lz4 -l > $(BIN_DIR)/$(IMG_ROOTFS).cpio.lz4 )
-	@echo "[fastboot] Built ramdisk: $(BIN_DIR)/$(IMG_ROOTFS).cpio.lz4"
-
-	@echo "[fastboot] Building image..."
+define Build/fastboot/boot/4
+	@echo "[fastboot] Building boot v4 image..."
 	$(mkbootimg) \
+		--header_version 4 \
 		--kernel $(1) \
-		--ramdisk $(BIN_DIR)/$(IMG_ROOTFS).cpio.lz4 \
-                --dtb $(2) \
-		--board $(3) \
-		--base $(4) \
-		--pagesize $(5) \
-		--cmdline "$(6)" \
-		--kernel_offset $(7) \
-		--ramdisk_offset $(8) \
-		--header_version $(9) \
-		--output $(10)
-	@echo "[fastboot] Built image: $(10)"
-endef
-
-# Fastboot support
-TARGET_FILESYSTEMS += fastboot
-fs-types-y += fastboot
-
-# Tensor
-define Build/tensor
-	@echo "[tensor] Using kernel: $(STAGING_DIR_IMAGE)/$(TENSOR_PRODUCT)-Image.lz4"
-	@echo "[tensor] Using dtb: $(STAGING_DIR_IMAGE)/$(TENSOR_PRODUCT)-dtbo.img"
-	@echo "[tensor] Using output: $@"
-	@echo "[tensor] Building fastboot image for $(SUBTARGET)..."
-	$(call Build/fastboot,$(STAGING_DIR_IMAGE)/$(TENSOR_PRODUCT)-Image.lz4,$(STAGING_DIR_IMAGE)/$(TENSOR_PRODUCT)-dtbo.img,$(SUBTARGET),$(TENSOR_BASE),$(TENSOR_PAGESIZE),$(TENSOR_CMDLINE),$(TENSOR_OFFSET_KERNEL),$(TENSOR_OFFSET_RAMDISK),$(TENSOR_HEADER),$@)
+		--ramdisk $(2) \
+		--pagesize $(3) \
+		--os_version $(4) \
+		--os_patch_level $(5) \
+		--output $(6)
+	@echo "[fastboot] Built boot v4 image: $(6)"
 endef
 
 # Image
+TARGET_FILESYSTEMS += fastboot
+fs-types-y += fastboot
 define Image/Prepare
 	@echo "[tensor] Preparing fastboot image build"
 	@touch $(KDIR)/root.fastboot
 endef
-define Image/Build/fastboot
-	$(call Build/tensor,$(BIN_DIR)/$(IMG_PREFIX)-boot.img)
+define Build/tensor/image/ramdisk
+	@echo "[tensor] Using output: $(BIN_DIR)/$(TENSOR_PRODUCT)-ramdisk.cpio.lz4"
+	@echo "[tensor] Building ramdisk..."
+	( cd $(TARGET_DIR); find . | $(STAGING_DIR_HOST)/bin/cpio -o -H newc -R 0:0 | lz4 -l > $(BIN_DIR)/$(TENSOR_PRODUCT)-ramdisk.cpio.lz4 )
+	@echo "[tensor] Built ramdisk: $(BIN_DIR)/$(TENSOR_PRODUCT)-ramdisk.cpio.lz4"
 endef
-define Image/Build
-	@echo "[tensor] Default Image/Build called with fs: $(1)"
+define Build/tensor/image/unpack
+	$(unpackbootimg) -i $(STAGING_DIR_IMAGE)/boot.img -o $(STAGING_DIR_IMAGE)
+endef
+define Build/tensor/image/pack
+	@echo "[tensor] Using kernel: $(STAGING_DIR_IMAGE)/boot.img-kernel"
+	@echo "[tensor] Using ramdisk: $(BIN_DIR)/$(TENSOR_PRODUCT)-ramdisk.cpio.lz4"
+	@echo "[tensor] Using output: $@"
+	@echo "[tensor] Building fastboot boot v4 image for $(TENSOR_PRODUCT)..."
+	$(call Build/fastboot/boot/4,$(STAGING_DIR_IMAGE)/boot.img-kernel,$(BIN_DIR)/$(TENSOR_PRODUCT)-ramdisk.cpio.lz4,$(TENSOR_PAGESIZE),$(TENSOR_OS),$(TENSOR_PATCH),$@)
 endef
 
 # Exports
 DEVICE_VARS += \
 	TENSOR_PRODUCT \
-	TENSOR_CMDLINE \
-	TENSOR_BASE \
 	TENSOR_PAGESIZE \
-	TENSOR_OFFSET_KERNEL \
-	TENSOR_OFFSET_RAMDISK \
-	TENSOR_HEADER
+	TENSOR_OS \
+	TENSOR_PATCH
 
 # Start building
 $(eval $(call BuildImage))
