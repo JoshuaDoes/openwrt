@@ -14,15 +14,14 @@ define TensorKernelPrebuilt
 	endef
 
 	define Package/$$(PKG_NAME)-$(1)/install
-		$$(INSTALL_DIR) $$(1)/lib/modules
-		$$(INSTALL_DATA) $$(PKG_BUILD_DIR)/*.ko $$(1)/lib/modules/
+		$(INSTALL_DIR) $$(1)/lib/modules
+		$(INSTALL_DIR) $$(1)/etc
+		$(INSTALL_DIR) $(STAGING_DIR_IMAGE)
 
-		$$(INSTALL_DIR) $$(1)/etc
-		$$(INSTALL_DATA) $$(PKG_BUILD_DIR)/modules.load $$(1)/etc/
-
-		$$(INSTALL_DIR) $$(STAGING_DIR_IMAGE)
-		$$(INSTALL_DATA) $$(PKG_BUILD_DIR)/Image.lz4 $$(STAGING_DIR_IMAGE)/$(1)-Image.lz4
-		$$(INSTALL_DATA) $$(PKG_BUILD_DIR)/dtbo.img $$(STAGING_DIR_IMAGE)/$(1)-dtbo.img
+		$(INSTALL_DATA) $(PKG_BUILD_DIR)/*.ko $$(1)/lib/modules/
+		$(INSTALL_DATA) $(PKG_BUILD_DIR)/modules.load $$(1)/etc/
+		$(INSTALL_DATA) $(PKG_BUILD_DIR)/Image.lz4 $(STAGING_DIR_IMAGE)/$(1)-Image.lz4
+		$(INSTALL_DATA) $(PKG_BUILD_DIR)/dtbo.img $(STAGING_DIR_IMAGE)/$(1)-dtbo.img
 	endef
 
 	$$(eval $$(call BuildPackage,tensor-kernel-prebuilt-$(1)))
