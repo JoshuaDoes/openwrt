@@ -17,7 +17,7 @@ HOST_BUILD_DIR:=$(BUILD_DIR_HOST)/$(PKG_NAME)
 include $(INCLUDE_DIR)/host-build.mk
 
 define Host/Compile
-	$(MAKE) -C $(HOST_BUILD_DIR)
+	$(MAKE) -C $(HOST_BUILD_DIR) CFLAGS="$(HOST_CFLAGS) -Wno-stringop-overflow -Wno-error"
 endef
 
 define Host/Install
