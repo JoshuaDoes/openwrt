@@ -20,6 +20,7 @@ FILES:=base-files
 # Fake kernel
 KERNEL_PATCHVER:=6.6
 KERNEL_TESTING_PATCHVER:=6.6
+TARGET_KERNEL_PREBUILT:=1
 
 define Target/Description
 	Build firmware images for Google Tensor boards.
