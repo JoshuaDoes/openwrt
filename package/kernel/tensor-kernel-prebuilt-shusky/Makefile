@@ -44,8 +44,7 @@ define Package/$(PKG_NAME)/install
 	$(CP) $(PKG_BUILD_DIR)/modules.load $(1)/etc/
 
 	$(INSTALL_DIR) $(STAGING_DIR_IMAGE)
-	$(CP) $(PKG_BUILD_DIR)/Image.lz4 $(STAGING_DIR_IMAGE)/$(TENSOR_TARGET)-Image.lz4
-	$(CP) $(PKG_BUILD_DIR)/dtbo.img $(STAGING_DIR_IMAGE)/$(TENSOR_TARGET)-dtbo.img
+	$(CP) $(PKG_BUILD_DIR)/boot.img $(STAGING_DIR_IMAGE)/boot.img
 endef
 
 define Build/Compile
