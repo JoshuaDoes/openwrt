@@ -16,7 +16,6 @@ define Device/Default
 endef
 define Device/tensor
 	DEVICE_VENDOR := Google
-	TARGET_KERNEL_PREBUILT := 1
 	IMAGES := boot.img
 	IMAGE/boot.img := tensor
 endef
