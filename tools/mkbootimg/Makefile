@@ -22,6 +22,7 @@ endef
 
 define Host/Install
 	$(INSTALL_BIN) $(HOST_BUILD_DIR)/mkbootimg $(STAGING_DIR_HOST)/bin/mkbootimg
+	$(INSTALL_BIN) $(HOST_BUILD_DIR)/unpackbootimg $(STAGING_DIR_HOST)/bin/unpackbootimg
 endef
 
 $(eval $(call HostBuild))
