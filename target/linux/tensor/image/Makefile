@@ -24,7 +24,7 @@ include $(SUBTARGET).mk
 # fastboot
 define Build/fastboot
 	@echo "[fastboot] Building ramdisk..."
-	( cd $(TARGET_DIR); find . | $(STAGING_DIR_HOST)/bin/cpio -o -H newc -R 0:0 | lz4 > $(BIN_DIR)/$(IMG_ROOTFS).cpio.lz4 )
+	( cd $(TARGET_DIR); find . | $(STAGING_DIR_HOST)/bin/cpio -o -H newc -R 0:0 | lz4 -l > $(BIN_DIR)/$(IMG_ROOTFS).cpio.lz4 )
 	@echo "[fastboot] Built ramdisk: $(BIN_DIR)/$(IMG_ROOTFS).cpio.lz4"
 
 	@echo "[fastboot] Building image..."
@@ -76,8 +76,7 @@ DEVICE_VARS += \
 	TENSOR_PAGESIZE \
 	TENSOR_OFFSET_KERNEL \
 	TENSOR_OFFSET_RAMDISK \
-	TENSOR_HEADER \
-	TENSOR_CHECKOUT
+	TENSOR_HEADER
 
 # Start building
 $(eval $(call BuildImage))
