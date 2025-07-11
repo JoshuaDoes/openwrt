@@ -1,0 +1,15 @@
+#!/bin/sh /etc/rc.common
+# Init script to load Google Tensor kernel modules in order from /etc/modules.load
+
+START=10
+STOP=90
+
+start() {
+  [ -f /etc/modules.load ] || return 0
+  echo "[tensor] Loading kernel modules from /etc/modules.load"
+  while read module; do
+    mod="$(basename "$module")"
+    echo "[tensor] insmod $mod"
+    insmod "/lib/modules/tensor/$mod" 2>/dev/null || echo "[tensor] ! $mod"
+  done < /etc/modules.load
+}

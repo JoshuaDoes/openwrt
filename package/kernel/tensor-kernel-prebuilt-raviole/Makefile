@@ -4,17 +4,19 @@
 
 include $(TOPDIR)/rules.mk
 
-TENSOR_TARGET:=raviole
-TENSOR_KERNEL_COMMIT:=ff96f402ce6f3be87cb40a16f33ac62d69cdb16a
-TENSOR_KERNEL_SHA256:=b0b0b7acce6f062e1f6d919fa56afe3eb84be04671a09dcc2fc7fbeccb0fca97
+TENSOR_PRODUCT:=raviole
+TENSOR_KERNEL_COMMIT:=04277238eff0fb6e18632a57865d46f676659b19
+TENSOR_KERNEL_SHA256:=00deb2aeeb5e3fbb982dcf19080722616449369cbc6acf3c071d6dabbe4d9227
 
-PKG_NAME:=tensor-kernel-prebuilt-$(TENSOR_TARGET)
-PKG_VERSION:=6.1.128
+PKG_NAME:=tensor-kernel-prebuilt-$(TENSOR_PRODUCT)
+PKG_VERSION:=6.1.118
+KERNEL_VERSION:=$(PKG_VERSION)-android14-11-gec0557b8be27
 PKG_RELEASE:=$(PKG_VERSION)-r1
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/hentaiOS-Devices/device_google_$(TENSOR_TARGET)-kernel.git
-PKG_SOURCE_VERSION:=ff96f402ce6f3be87cb40a16f33ac62d69cdb16a
-PKG_SOURCE_HASH:=b0b0b7acce6f062e1f6d919fa56afe3eb84be04671a09dcc2fc7fbeccb0fca97
+PKG_SOURCE_URL:=https://github.com/hentaiOS-Devices/device_google_$(TENSOR_PRODUCT)-kernel.git
+PKG_SOURCE_DATE:=2025-01-11 #January 11th, 2025
+PKG_SOURCE_VERSION:=$(TENSOR_KERNEL_COMMIT)
+PKG_MIRROR_HASH:=$(TENSOR_KERNEL_SHA256)
 PKG_SOURCE:=$(PKG_NAME).tar.gz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
@@ -26,25 +28,31 @@ include $(INCLUDE_DIR)/package.mk
 define Package/$(PKG_NAME)
   SECTION:=kernel
   CATEGORY:=Kernel modules
-  TITLE:=Tensor kernel prebuilts for $(TENSOR_TARGET)
+  TITLE:=Tensor kernel prebuilts for $(TENSOR_PRODUCT)
   MAINTAINER:=JoshuaDoes using hentaiOS
   VERSION:=$(PKG_VERSION)
   URL:=$(PKG_SOURCE_URL)
 endef
 
 define Package/$(PKG_NAME)/description
-	Prebuilt kernels, device trees and modules for Google Tensor on $(TENSOR_TARGET)
+	Prebuilt kernels, device trees and modules for Google Tensor on $(TENSOR_PRODUCT)
 endef
 
 define Package/$(PKG_NAME)/install
-	$(INSTALL_DIR) $(1)/lib/modules
-	$(CP) $(PKG_BUILD_DIR)/*.ko $(1)/lib/modules/
+	( if [ ! -f $(STAGING_DIR_IMAGE)/$(TENSOR_PRODUCT)-boot.img ]; then \
+		echo "*** Please install a boot image for $(TENSOR_PRODUCT) containing Linux $(KERNEL_VERSION) before building $(PKG_NAME) ***"; \
+		echo "Expected: $(STAGING_DIR_IMAGE)/$(TENSOR_PRODUCT)-boot.img"; \
+		exit 1; \
+	fi )
+
+	$(INSTALL_DIR) $(1)/lib/modules/tensor
+	rm -rf $(1)/lib/modules/tensor/
+	mkdir -p $(1)/lib/modules/tensor/
+	$(CP) $(PKG_BUILD_DIR)/*.ko $(1)/lib/modules/tensor/
 
 	$(INSTALL_DIR) $(1)/etc
-	$(CP) $(PKG_BUILD_DIR)/modules.load $(1)/etc/
-
-	$(INSTALL_DIR) $(STAGING_DIR_IMAGE)
-	$(CP) $(PKG_BUILD_DIR)/boot.img $(STAGING_DIR_IMAGE)/boot.img
+	rm -f $(1)/etc/modules.load
+	cat $(PKG_BUILD_DIR)/vendor_boot.modules.load >> $(1)/etc/modules.load
 endef
 
 define Build/Compile
