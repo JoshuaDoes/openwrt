@@ -32,7 +32,7 @@ define Host/Install
 		i386|i486|i586|i686) cp $(HOST_BUILD_DIR)/lib/x86/libmagiskboot.so $(STAGING_DIR_HOST)/bin/magiskboot;; \
 		aarch64|arm64) cp $(HOST_BUILD_DIR)/lib/arm64-v8a/libmagiskboot.so $(STAGING_DIR_HOST)/bin/magiskboot;; \
 		armv7l|armv8l|arm) cp $(HOST_BUILD_DIR)/lib/armeabi-v7a/libmagiskboot.so $(STAGING_DIR_HOST)/bin/magiskboot;; \
-		*) echo "Unsupported host arch: $(HOST_UNAME_ARCH)"; exit 1;; \
+		*) echo "Unsupported host arch: $(HOST_BUILD_ARCH)"; exit 1;; \
 	esac
 	chmod +x $(STAGING_DIR_HOST)/bin/magiskboot
 endef

@@ -26,6 +26,7 @@ TARGET_DEVICES += google_oriole google_raven google_bluejay
 
 # Tensor G2: gs201
 define Device/pantah
+  $(call Device/tensor)
   DEVICE_PACKAGES := tensor-kernel-prebuilt-pantah
   TENSOR_PRODUCT := pantah
 endef
@@ -47,6 +48,7 @@ TARGET_DEVICES += google_panther google_cheetah google_lynx
 
 # Tensor G3: zuma
 define Device/shusky
+  $(call Device/tensor)
   DEVICE_PACKAGES := tensor-kernel-prebuilt-shusky
   TENSOR_PRODUCT := shusky
 endef
