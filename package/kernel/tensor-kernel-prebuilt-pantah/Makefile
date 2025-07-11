@@ -10,9 +10,10 @@ TENSOR_KERNEL_SHA256:=skip
 
 PKG_NAME:=tensor-kernel-prebuilt-$(TENSOR_PRODUCT)
 PKG_VERSION:=6.1.128
+KERNEL_VERSION:=$(PKG_VERSION)
 PKG_RELEASE:=$(PKG_VERSION)-r1
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/hentaiOS-Devices/device_google_$(TENSOR_PRODUCT)-kernel.git
+PKG_SOURCE_URL:=https://github.com/hentaiOS-Devices/device_google_$(TENSOR_PRODUCT)-kernel
 PKG_SOURCE_DATE:=2025-05-08
 PKG_SOURCE_VERSION:=$(TENSOR_KERNEL_COMMIT)
 PKG_MIRROR_HASH:=$(TENSOR_KERNEL_SHA256)
@@ -38,16 +39,25 @@ define Package/$(PKG_NAME)/description
 endef
 
 define Package/$(PKG_NAME)/install
-	$(INSTALL_DIR) $(1)/lib/modules
-	$(CP) $(PKG_BUILD_DIR)/*.ko $(1)/lib/modules/
+	( if [ ! -f $(STAGING_DIR_IMAGE)/$(TENSOR_PRODUCT)-boot.img ]; then \
+		echo "*** Please install a boot image for $(TENSOR_PRODUCT) containing Linux $(KERNEL_VERSION) before building $(PKG_NAME) ***"; \
+		echo "Expected: $(STAGING_DIR_IMAGE)/$(TENSOR_PRODUCT)-boot.img"; \
+		exit 1; \
+	fi )
+
+	$(INSTALL_DIR) $(1)/lib/modules/tensor
+	rm -rf $(1)/lib/modules/tensor/
+	mkdir -p $(1)/lib/modules/tensor/
+	$(CP) $(PKG_BUILD_DIR)/*.ko $(1)/lib/modules/tensor/
 
 	$(INSTALL_DIR) $(1)/etc
-	$(CP) $(PKG_BUILD_DIR)/vendor_boot.modules.load $(1)/etc/modules.load
-
-	$(INSTALL_DIR) $(STAGING_DIR_IMAGE)
-	rm $(STAGING_DIR_IMAGE)/$(TENSOR_PRODUCT).dtb
-	find $(PKG_BUILD_DIR) -name '*.dtb' | sort | xargs cat >> $(STAGING_DIR_IMAGE)/$(TENSOR_PRODUCT).dtb
-	$(CP) $(PKG_BUILD_DIR)/Image.lz4 $(STAGING_DIR_IMAGE)/$(TENSOR_PRODUCT)-Image.lz4
+	rm -f $(1)/etc/modules.load
+	( if [ -f $(PKG_BUILD_DIR)/vendor_boot.modules.load ]; then \
+		cat $(PKG_BUILD_DIR)/vendor_boot.modules.load >> $(1)/etc/modules.load; \
+	fi )
+	( if [ -f $(PKG_BUILD_DIR)/modules.load ]; then \
+		cat $(PKG_BUILD_DIR)/modules.load >> $(1)/etc/modules.load; \
+	fi )
 endef
 
 define Build/Compile

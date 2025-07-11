@@ -6,15 +6,15 @@ include $(TOPDIR)/rules.mk
 
 TENSOR_PRODUCT:=raviole
 TENSOR_KERNEL_COMMIT:=04277238eff0fb6e18632a57865d46f676659b19
-TENSOR_KERNEL_SHA256:=00deb2aeeb5e3fbb982dcf19080722616449369cbc6acf3c071d6dabbe4d9227
+TENSOR_KERNEL_SHA256:=skip
 
 PKG_NAME:=tensor-kernel-prebuilt-$(TENSOR_PRODUCT)
 PKG_VERSION:=6.1.118
 KERNEL_VERSION:=$(PKG_VERSION)-android14-11-gec0557b8be27
 PKG_RELEASE:=$(PKG_VERSION)-r1
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/hentaiOS-Devices/device_google_$(TENSOR_PRODUCT)-kernel.git
-PKG_SOURCE_DATE:=2025-01-11 #January 11th, 2025
+PKG_SOURCE_URL:=https://github.com/hentaiOS-Devices/device_google_$(TENSOR_PRODUCT)-kernel
+PKG_SOURCE_DATE:=2025-01-11
 PKG_SOURCE_VERSION:=$(TENSOR_KERNEL_COMMIT)
 PKG_MIRROR_HASH:=$(TENSOR_KERNEL_SHA256)
 PKG_SOURCE:=$(PKG_NAME).tar.gz
@@ -52,7 +52,12 @@ define Package/$(PKG_NAME)/install
 
 	$(INSTALL_DIR) $(1)/etc
 	rm -f $(1)/etc/modules.load
-	cat $(PKG_BUILD_DIR)/vendor_boot.modules.load >> $(1)/etc/modules.load
+	( if [ -f $(PKG_BUILD_DIR)/vendor_boot.modules.load ]; then \
+		cat $(PKG_BUILD_DIR)/vendor_boot.modules.load >> $(1)/etc/modules.load; \
+	fi )
+	( if [ -f $(PKG_BUILD_DIR)/modules.load ]; then \
+		cat $(PKG_BUILD_DIR)/modules.load >> $(1)/etc/modules.load; \
+	fi )
 endef
 
 define Build/Compile

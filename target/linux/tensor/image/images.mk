@@ -4,7 +4,8 @@
 
 # Used when building the firmware images
 DEVICE_VARS += \
-	TENSOR_PRODUCT
+	TENSOR_PRODUCT \
+	IMAGE_SIZE
 
 # Device defaults
 define Device/Default
@@ -17,13 +18,13 @@ define Device/tensor
   TENSOR_PRODUCT := unknown
 
   # Firmware images
-  IMAGES := ramdisk.cpio.lz4 boot.img
-  IMAGE/ramdisk.cpio.lz4 := tensor/ramdisk
+  IMAGES := ramdisk.cpio boot.img
+  IMAGE/ramdisk.cpio := tensor/ramdisk
   IMAGE/boot.img := tensor/boot
   IMAGE_SIZE := 67108864
 endef
 
-# ramdisk.cpio.lz4
+# ramdisk.cpio
 define Build/tensor/ramdisk
 	@echo "[tensor] Building ramdisk..."
 	@echo "[tensor] > Using output: $@"
@@ -36,7 +37,7 @@ define Build/tensor/boot
 	@echo "[tensor] Repacking boot image for $(TENSOR_PRODUCT)..."
 	rm -rf $(STAGING_DIR_IMAGE)/$(TENSOR_PRODUCT)-boot
 	$(call Build/fastboot/magiskboot/unpack,$(STAGING_DIR_IMAGE)/$(TENSOR_PRODUCT)-boot.img,$(STAGING_DIR_IMAGE)/$(TENSOR_PRODUCT)-boot)
-	cp $(BIN_DIR)/$(IMG_PREFIX)$(if $(PROFILE_SANITIZED),-$(PROFILE_SANITIZED))-fastboot-ramdisk.cpio.lz4 $(STAGING_DIR_IMAGE)/$(TENSOR_PRODUCT)-boot/ramdisk.cpio
+	cp $(BIN_DIR)/$(IMG_PREFIX)$(if $(PROFILE_SANITIZED),-$(PROFILE_SANITIZED))-fastboot-ramdisk.cpio $(STAGING_DIR_IMAGE)/$(TENSOR_PRODUCT)-boot/ramdisk.cpio
 	$(call Build/fastboot/magiskboot/repack,$(STAGING_DIR_IMAGE)/$(TENSOR_PRODUCT)-boot.img,$(STAGING_DIR_IMAGE)/$(TENSOR_PRODUCT)-boot,$@)
 	@echo "[tensor] Built boot image: $@"
 endef
